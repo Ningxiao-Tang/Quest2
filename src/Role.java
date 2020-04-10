@@ -1,6 +1,6 @@
 public abstract class Role {
     public String name;
-    public int hp;
+    public double hp;
     public int level;
     //position
     public int x;
@@ -19,18 +19,18 @@ public abstract class Role {
         return name;
     }
 
-    public int HP(){
+    public double HP(){
         return hp;
     }
 
-    public void setHP(int x){
+    public void setHP(double x){
         if(x <0) x = 0;
         hp = x;
     }
     public int Level(){
         return level;
     }
-    abstract public int Defence();
+    abstract public double Defence();
     abstract public void info();
 
 }

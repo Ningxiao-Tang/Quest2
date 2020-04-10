@@ -10,6 +10,12 @@ public class Team {
         roles =  new Role[n];
         levels = new int[n];
     }
+    public void info(){
+        Hero.header();
+        for(int n = 0 ;n < roles.length; n++){
+            roles[n].info();
+        }
+    }
 
 
 

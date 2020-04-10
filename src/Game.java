@@ -1,4 +1,4 @@
 public abstract class Game {
-    public  Board board;
+    public Board board;
 
 }

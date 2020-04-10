@@ -11,14 +11,7 @@ public class Board {
 
         for(int i = 0; i < height; i++){
             for (int j = 0; j < width; j++){
-                if (i == 0 && j == 0) {
-                    tiles[i][j] = TileSet.Hero;
-                    continue;
-                }
-                double r = Math.random();
-                if (r < 0.2) tiles[i][j] = TileSet.Wall;
-                else if (r>=0.2 && r < 0.5) tiles[i][j] = TileSet.Market;
-                else tiles[i][j] = TileSet.DEFAULT;
+                tiles[i][j] = TileSet.DEFAULT;
             }
         }
         //System.out.println();
@@ -31,15 +24,33 @@ public class Board {
     }
 
     public void Init(int d) {
-        if (d == 2) {
-        // quest 2 board
-            for (int i = 0; i < height; i++){
-                for (int j = 2; j < width; j+=2) {
-                    tiles[i][j] = TileSet.Wall;
-                }
-                if (i == 0) {
+        if (d == 2) {// quest 2 board
 
+            //Nexus()
+//            for(int j = 0; j < width; j++){
+//                this.tiles[0][j] = TileSet.monsterNexus;
+//                this.tiles[height-1][j] = TileSet.heroNexus;
+//            }
+            //createWall();
+            for (int i = 0; i < height; i++){
+                for (int j = 2; j < width; j+=3) {
+                    tiles[i][j] = TileSet.WALL;
                 }
+            }
+            //create random cells
+            for(int i = 1; i < height-1; i++){
+                for (int j = 0; j < width; j++){
+                    if (tiles[i][j].equals(TileSet.WALL)) continue;
+                    double r = Math.random();
+                    if (r < 0.1) tiles[i][j] = TileSet.BUSH;
+                    else if (r < 0.2) tiles[i][j] = TileSet.KOULOU;
+                    else if (r < 0.3) tiles[i][j] = TileSet.CAVE;
+                }
+            }
+            //spawn monster and heroes
+            for(int j = 0; j < width; j+=3){
+                createMonster(j);
+                createHero(j);
             }
         }
         else{
@@ -47,45 +58,42 @@ public class Board {
             for(int i = 0; i < height; i++){
                 for (int j = 0; j < width; j++){
                     if (i == 0 && j == 0) {
-                        tiles[i][j] = TileSet.Hero;
+                        tiles[i][j] = TileSet.HERO;
                         continue;
                     }
                     double r = Math.random();
-                    if (r < 0.2) tiles[i][j] = TileSet.Wall;
-                    else if (r>=0.2 && r < 0.5) tiles[i][j] = TileSet.Market;
+                    if (r < 0.2) tiles[i][j] = TileSet.WALL;
+                    else if (r < 0.5) tiles[i][j] = TileSet.MARKET;
                     else tiles[i][j] = TileSet.DEFAULT;
                 }
             }
         }
     }
 
+    public void createHero(int col) {
+        this.tiles[height-1][col] = TileSet.HERO;
+    }
+    public void createMonster(int col) {
+        this.tiles[0][col] = TileSet.MONSTER;
+    }
     public boolean checkMove(int x, int y){
         boolean ok = false;
         if (x < 0 || y < 0 || x > this.height || y > this.width) {
             IO.prompt("Move out of board");
         }
-        else if (this.tiles[x][y] == TileSet.Wall){
+        else if (this.tiles[x][y] == TileSet.WALL){
             IO.prompt("Inaccessible.");
         }
         else ok = true;
         return ok;
     }
 
+    public int getHeight() {
+        return height;
+    }
+
     public void render(){
         char c = '|';
-        /*
-        StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < height; i++){
-            for( int j = 0,k = 0; j < 2*width+1; j++){
-                if(j%2 == 0) sb.append(c);
-                else {
-                    sb.append(tiles[i][k]);
-                    k++;
-                }
-            }
-            sb.append('\n');
-        }
-        System.out.println(sb.toString());*/
         for (int i = 0; i < height; i++) {
             for (int j = 0, k = 0; j < 2*width+1; j++) {
                 if(j%2 == 0) System.out.print('|');

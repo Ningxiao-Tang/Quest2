@@ -2,14 +2,14 @@ import java.lang.*;
 
 public class Hero extends Role {
     //private String name;
-    public int mana;
-    public int strength;
-    public int agility;
-    public int dexterity; // is added to the amount of damage when casting a spell
+    public double mana;
+    public double strength;
+    public double agility;
+    public double dexterity; // is added to the amount of damage when casting a spell
     public int money;
     public int exp;
-    public int maxHP;
-    public int maxMana;
+    public double maxHP;
+    public double maxMana;
     //public int hp;
     //public int level;
     public int favored  = 0;
@@ -22,7 +22,7 @@ public class Hero extends Role {
     public Weapon wp = null;
     public Armory arm = null;
 
-    public Hero(String n, int mana, int strength, int agility, int dexterity, int money, int exp, int f) {
+    public Hero(String n, double mana, double strength, double agility, double dexterity, int money, int exp, int f) {
         super(n,1);
         //this.name = n;
         this.mana = mana;
@@ -42,7 +42,7 @@ public class Hero extends Role {
                 "Name","Level","HP","Money","Exp","Strength","Agility","Dexterity","Mana"));
     }
     public void info() {
-        System.out.println(String.format("%-24s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s\n",
+        System.out.println(String.format("%-24s%-10s%-10.2f%-10s%-10s%-10s%-10s%-10s%-10s\n",
                 name,level,hp,money,exp,strength,agility,dexterity,mana));
 
     }
@@ -71,6 +71,10 @@ public class Hero extends Role {
     public int getItemCount() {
         return itemCount;
     }
+    public void recover() {
+        this.hp = Math.min(this.hp*1.01, maxHP);
+        this.mana = Math.min(this.mana*1.01, maxMana);
+    }
     public void gain(int d){
         this.money += 100*d;
         this.exp +=2;
@@ -81,9 +85,11 @@ public class Hero extends Role {
             IO.prompt("Monster "+monster.Name() + " dodged the attack");
         else{
             if(this.Strength() > monster.Defence()){
-                IO.prompt(this.name + " cause " + this.Strength() + " damage to " +monster.name);
-                monster.setHP(monster.HP()-(int)(this.Strength() - monster.Defence()));
+                IO.prompt("Hero "+this.name + " cause " + this.Strength() + " damage to " +"Monster "+monster.name);
+                monster.setHP(monster.HP()-(this.Strength() - monster.Defence()));
             }
+            else
+                IO.prompt("Hero "+this.name +"'s attack is defended");
         }
 
     }
@@ -129,10 +135,10 @@ public class Hero extends Role {
      * A lightning spell, apart from the damage it causes it also reduces the dodge chance of the enemy.
      */
     public void cast(Spell spell, Monsters m) {
-        int d = spell.Damage() *(1+this.dexterity/10000);
+        double d = spell.Damage() *(1+this.dexterity/10000);
         if (m.Defence() < d) m.setHP(m.HP()-(d-m.Defence()));
         if (spell instanceof IceSpell){
-            m.setDamage(spell.magicEffect((int)m.Damage()));
+            m.setDamage(spell.magicEffect(m.Damage()));
         }
         else if (spell instanceof FireSpell) {
             m.setDefence(spell.magicEffect(m.Defence()));
@@ -194,7 +200,7 @@ public class Hero extends Role {
     }
 
     @Override
-    public int Defence() {
+    public double Defence() {
         // if hero has no armory, return 0; else return armory's defence
         if (arm != null) return arm.Defence();
         return 0;

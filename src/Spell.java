@@ -1,7 +1,7 @@
 public abstract class Spell extends Equipment{
 
-    private int damage;
-    private int mana;
+    private double damage;
+    private double mana;
 
     public Spell(String s, int c, int l, int d, int m) {
         super(s,c,l);
@@ -10,15 +10,15 @@ public abstract class Spell extends Equipment{
 
     }
 
-    public int Damage() {
+    public double Damage() {
         return this.damage;
     }
-    public int Mana() {return mana;}
+    public double Mana() {return mana;}
     public boolean checkMana(Hero h) {
         return h.mana >= this.mana;
     }
-    public int magicEffect(int skill) {
-        return (int)(skill*0.9);
+    public double magicEffect(double skill) {
+        return skill*0.9;
     }
 
     @Override

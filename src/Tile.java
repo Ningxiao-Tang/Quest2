@@ -22,4 +22,10 @@ public class Tile {
     public String toString() {
         return String.valueOf(this.character);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        Tile t = (Tile) obj;
+        return this.Character()==t.Character();
+    }
 }

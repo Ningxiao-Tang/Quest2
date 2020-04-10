@@ -2,11 +2,11 @@ public class Monsters extends Role {
 
     //private int prev_level_exp;
 
-    private int damage; //damage they can cause
-    private int agility; // chance of dodge attack
-    private int defence; // deducted from the damage of an incoming attack
+    public double damage; //damage they can cause
+    private double agility; // chance of dodge attack
+    private double defence; // deducted from the damage of an incoming attack
 
-    public Monsters(String n, int level, int damage, int defense, int dodgeChance) {
+    public Monsters(String n, int level, double damage, double defense, double dodgeChance) {
         super(n,level);
         this.damage = damage;
         this.defence = defense;
@@ -19,7 +19,7 @@ public class Monsters extends Role {
                 "Name","Level","HP","Damage","Defence","Dodge chance"));
     }
     public void info() {
-        System.out.println(String.format("%-24s%-10s%-10s%-10s%-10s\n",
+        System.out.println(String.format("%-24s%-10s%-10s%-10s%-10s%-10s\n",
                 name,level,hp,damage,defence,agility));
 
     }
@@ -27,32 +27,31 @@ public class Monsters extends Role {
         if(Math.random() <=  hero.Dodge())
             IO.prompt("Hero "+ hero.Name()+ " dodged the attack");
         else if( this.damage > hero.Defence()){
-            IO.prompt(this.name + " cause " + this.damage + " damage to " +hero.name);
-            hero.setHP(hero.HP()-(int)(this.Damage()-hero.Defence()));
+            IO.prompt("Monster "+this.name + " cause " + this.damage + " damage to " +hero.name);
+            hero.setHP(hero.HP()-(this.Damage()-hero.Defence()));
         }
 
     }
 
-
-
+    @Override
+    public double Defence() {
+        return defence;
+    }
     public double Damage() {
         return damage*0.05;
     }
-    public void setDamage(int x){
-        this.damage = x;
-    }
-    public void setDefence(int x) {
-        defence = x;
-    }
-    public int Dodge() {
+    public double Dodge() {
         return agility;
     }
-    public void setAgility(int x) {
+    public void setDamage(double x){
+        this.damage = x;
+    }
+    public void setDefence(double x) {
+        defence = x;
+    }
+    public void setAgility(double x) {
         agility = x;
     }
-    @Override
-    public int Defence() {
-        return defence;
-    }
+
 
 }

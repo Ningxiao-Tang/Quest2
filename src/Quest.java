@@ -2,28 +2,6 @@ import java.lang.Math;
 import java.util.Scanner;
 import java.util.Arrays;
 public class Quest extends Game {
-
-    private static int promptInt(Scanner sc, String prompt, int min, int max) {
-        for (;;) {
-            System.out.print(prompt + ": \n");
-            if (! sc.hasNextInt()) {
-                System.out.println("** Not a valid number, please try again");
-                sc.nextLine(); // discard bad input
-                continue;
-            }
-            int value = sc.nextInt();
-            //sc.nextLine(); // discard any extra text on the line
-            if (value < min) {
-                System.out.println("** Number cannot be smaller than "+min +", please try again");
-                continue;
-            }
-            if (value > max) {
-                System.out.println("** Number cannot be larger than "+max +", please try again");
-                continue;
-            }
-            return value;
-        }
-    }
     private void prompt(String s) {
         System.out.println(Color.CYAN+s+Color.RESET);
     }
@@ -68,6 +46,9 @@ public class Quest extends Game {
         for(int n = 0 ;n < hero_num; n++){
             team.roles[n].info();
         }
+        Monsters.header();
+        for(int j = 0; j < hero_num; j++) {
+            monster.roles[j].info();}
     }
 
     public void move(char ch, Team team) {
@@ -94,6 +75,9 @@ public class Quest extends Game {
             if(board.checkMove(x, y+1))
                 pos.y++;
         }
+        if (ch == 'b') {
+            pos.x = board.getHeight()-1;
+        }
         if (ch == 'i'){
             this.info();
         }
@@ -106,7 +90,7 @@ public class Quest extends Game {
         System.out.println("Welcome to Quest.");
         Scanner in = new Scanner(System.in);
 
-        hero_num = promptInt(in, s2, 1, 3);
+        hero_num = IO.promptInt(in, s2, 1, 3);
         team = new Team(hero_num);
         this.selectHero(team, in);
         this.intro();
@@ -120,31 +104,25 @@ public class Quest extends Game {
         Tile t = TileSet.DEFAULT;
         while ((ch = in.next().charAt(0)) != 'q' ){
             board.tiles[team.x][team.y] = t;
+            //update heroes position
             move(ch, team);
-
             t = board.tiles[team.x][team.y]; //now player at an accessible cell
-            board.tiles[team.x][team.y] = TileSet.Hero; // render board after move
+            board.tiles[team.x][team.y] = TileSet.HERO; // render board after move
             board.render();
 
-            if(t == TileSet.Market) {
+            if(t == TileSet.MARKET) {
                 onMarket(in, team.roles);
                 board.render();
             }
             if(t == TileSet.DEFAULT) {
                 if(Math.random() < 0.8) {
-                    //fight()
                     prompt("Watch out! You encounter monsters! Heroes, Let's fight!");
                     createMonster(hero_num, team.levels[hero_num-1]);
-                    for(int j = 0; j < hero_num; j++) {Monsters.header(); monster.roles[j].info();}
-                    // write fight that have multiple round;
-                    if(fight(team.roles, monster.roles,in)== 0) {
-                        break;
-                    }
-
+                    Fight f = new Fight(board,team.roles, monster.roles,in);
+                    //fight(team.roles, monster.roles,in);
                 }
             }
         }
-
     }
 
     private void onMarket(Scanner sc, Role[] heros) {
@@ -157,10 +135,10 @@ public class Quest extends Game {
             Hero.header();
             hero.info();
             do{
-                d = promptInt(sc,"Please Enter 1 to buy, enter 2 to sell, enter 3 to pass",1,3);
+                d = IO.promptInt(sc,"Please Enter 1 to buy, enter 2 to sell, enter 3 to pass",1,3);
                 if (d == 1) { // buy
 
-                    int item = promptInt(sc,"Enter the item number that you want to buy",1,ItemSet.size+1);
+                    int item = IO.promptInt(sc,"Enter the item number that you want to buy",1,ItemSet.size+1);
                     if(!(market.inventory[item-1].checkLevel(hero))){
                         prompt("Hero Level doesn't meet the minimum level to buy this item");
                     }
@@ -184,8 +162,8 @@ public class Quest extends Game {
                 }
                 if (d == 2) { // sell
                     hero.Inventory();
-                    if(hero.itemCount == 0) continue;;
-                    int item = promptInt(sc,"Enter the item number that you want to sell",1,hero.itemCount +1);
+                    if(hero.itemCount == 0) continue;
+                    int item = IO.promptInt(sc,"Enter the item number that you want to sell",1,hero.itemCount +1);
                     //hero.Inventory();
                     if (hero.itemCount != 0) {
                         hero.itemCount--;
@@ -211,22 +189,15 @@ public class Quest extends Game {
         int r;
         for (int i = 0; i < n; i++) {
             do{
-                r =(int) Math.random()* MonsterSet.n;
+                r =(int) (Math.random()* MonsterSet.n);
             }while (MonsterSet.monsters[r].Level()!=maxl);
             Monsters m = MonsterSet.monsters[r];
-            monster.roles[i] = new Monsters(m.name,m.level,(int)m.Damage(),m.Defence(),m.Dodge());
+            monster.roles[i] = new Monsters(m.name,m.level,m.damage,m.Defence(),m.Dodge());
         }
 
     }
 
-    /**
-     * A fight consists of multiple rounds. The first to attack is always the team of heroes.
-     * The fight ends only when the hp of either all the monsters or all the heroes is zeroed.
-     * If the heroes win the fight then they earn some money based on the level and the number of monsters that they faced in that fight.
-     * If the monsters win the fight the heroes lose half of their money.
-     * @param hero
-     * @param monster
-     */
+/*
 
     private int fight(Role[] hero, Role[] monster,Scanner sc) {
         int result = 1 ;
@@ -265,7 +236,7 @@ public class Quest extends Game {
         return result;
     }
     private int fight(Hero h, Monsters m, Scanner sc) {
-        int result = 0;
+        int result;
         do{
             result = round(h,m,sc);
             //System.out.println(h.Name()+m.Name()+result);
@@ -274,14 +245,14 @@ public class Quest extends Game {
     }
 
 
+
     private int round(Hero hero, Monsters monster, Scanner sc) {
         //Scanner sc = new Scanner(System.in);
         int result = 0;
         prompt(hero.Name()+ " VS " + monster.Name());
-        int d = promptInt(sc,"To change weapon/armory, please enter 0\n" +
+        int d = IO.promptInt(sc,"To change weapon/armory, please enter 0\n" +
                 "To attack please enter 1\nTo cast a spell please enter 2\nTo use a potion please enter 3",0,3);
-        if(hero.hp < hero.maxHP) hero.hp += 0.05* hero.hp;
-        if(hero.mana < hero.maxMana) hero.mana += 0.05 * hero.mana;
+        hero.recover();
         if (d == 3) { // consume potion
             int pid = hero.hasP();
             if (pid != 0){
@@ -316,7 +287,7 @@ public class Quest extends Game {
                         System.out.println(i+1);
                     }
                 }
-                int choice = promptInt(sc,"Choose weapon/armory by the number ",1,ItemSet.k[1]);
+                int choice = IO.promptInt(sc,"Choose weapon/armory by the number ",1,ItemSet.k[1]);
                 if (hero.inventory[choice] != 0) {
                     if (choice < ItemSet.k[0]) hero.wp = (Weapon) ItemSet.items[choice];
                     else hero.arm = (Armory) ItemSet.items[choice];
@@ -327,12 +298,14 @@ public class Quest extends Game {
             }
         }
         // monster attack
-        if(monster.HP()>0) monster.attack(hero);
+        if(monster.HP()>0)
+            monster.attack(hero);
         //at end of each round, print roles information
-        Hero.header();
-        hero.info();
-        Monsters.header();
-        monster.info();
+        info();
+//        Hero.header();
+//        hero.info();
+//        Monsters.header();
+//        monster.info();
         if(hero.HP() <= 0) result = -1;
         if (monster.HP() <= 0) result = 1;
         return result;
@@ -347,6 +320,6 @@ public class Quest extends Game {
         if(i == player.length) b = true;
         return b;
     }
-
+*/
 
 }
