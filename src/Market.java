@@ -1,3 +1,4 @@
+import java.util.Scanner;
 import java.util.Set;
 public class Market {
     //use collection to represent inventory
@@ -51,6 +52,64 @@ public class Market {
             }
             inventory[i].info();
             System.out.println(i+1);
+        }
+    }
+
+    public void onMarket(Scanner sc, Role[] heros) {
+
+        for(int i = 0; i < heros.length; i++) {
+            this.show();
+            int d;
+            Hero hero = (Hero) heros[i];
+            IO.prompt("For hero "+  hero.Name() +":" );
+            Hero.header();
+            hero.info();
+            do{
+                d = IO.promptInt(sc,"Please Enter 1 to buy, enter 2 to sell, enter 3 to pass",1,3);
+                if (d == 1) { // buy
+
+                    int item = IO.promptInt(sc,"Enter the item number that you want to buy",1,ItemSet.size+1);
+                    if(!(this.inventory[item-1].checkLevel(hero))){
+                        IO.prompt("Hero Level doesn't meet the minimum level to buy this item");
+                    }
+                    else if(!(this.inventory[item-1].checkMoney(hero))) {
+                        IO.prompt("Hero doesn't have enough money");
+                    }
+                    else if(this.inventory[item-1] instanceof Spell && !(((Spell)this.inventory[item-1]).checkMana(hero))){
+                        IO.prompt("Hero doesn't have enough mana");
+                    }
+                    else {
+                        hero.money -= this.inventory[item-1].Cost();
+                        hero.inventory[item-1] ++;
+                        hero.itemCount++;
+                        IO.prompt("You have bought item: " +this.inventory[item-1].Name());
+                        if(item <= ItemSet.k[0]) hero.weapons[item-1] = (Weapon) ItemSet.items[item-1];
+                        if(item> ItemSet.k[0] && item <= ItemSet.k[1]) hero.armories[item-1-ItemSet.k[0]] = (Armory) ItemSet.items[item-1];
+                        if(item > ItemSet.k[1] && item <= ItemSet.k[2]) hero.potions[item-1-ItemSet.k[1]] = (Potions) ItemSet.items[item-1];
+                        if(item > ItemSet.k[2]) hero.spells[item-1-ItemSet.k[2]] = (Spell) ItemSet.items[item-1];
+
+                    }
+                }
+                if (d == 2) { // sell
+                    hero.Inventory();
+                    if(hero.itemCount == 0) continue;
+                    int item = IO.promptInt(sc,"Enter the item number that you want to sell",1,hero.itemCount +1);
+                    //hero.Inventory();
+                    if (hero.itemCount != 0) {
+                        hero.itemCount--;
+                        hero.inventory[item-1]--;
+                        Equipment e = this.inventory[item];
+                        hero.money += e.Cost()/2;
+                    }
+
+                }
+                if (d == 3){
+                    hero.header();
+                    hero.info();
+                    hero.list();
+                    break;
+                }
+            }while(true);
         }
     }
 }

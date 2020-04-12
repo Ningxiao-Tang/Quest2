@@ -11,19 +11,20 @@ public class Fight {
     public Board board;
     public Hero[] hero;
     public Monsters[] monster;
+    public int result;
 
     public Fight(Board b, Role[] h, Role[] m, Scanner sc) {
         board = b;
         //hero = (Hero[]) h;
         //monster = (Monsters[]) m;
         //Scanner sc = new Scanner(System.in);
-        fight(h,m,sc);
+        result = fight(h,m,sc);
 
     }
 
 
     private int fight(Role[] hero, Role[] monster,Scanner sc) {
-        int result = 1 ;
+        int result;
         do{
             for (int j = 0; j < monster.length;j++){
                 if(monster[j].HP() <= 0) continue;
@@ -34,28 +35,16 @@ public class Fight {
                 }
             }
 
-        }while(lose(hero) || lose(monster));
+        }while(!lose(monster)&& !lose(hero));
 
         if(lose(hero)){
-            result = -1;
-            IO.prompt("Hero failed.");
-            //System.out.println("Victory "+victory+" Result "+result);
-            for(int i = 0; i < hero.length; i++){
-                ((Hero)hero[i]).money /=2;
-            }
+            exit(0,hero);
+            result = 0;
         }
-        if(lose(monster)){
+        else {
+            exit(1,hero);
             result = 1;
-            IO.prompt("Hero defeated monsters!");
-            for(int i = 0; i < hero.length; i++) {
-                if(hero[i].HP() == 0)
-                    ((Hero) hero[i]).revive();
-                if(((Hero)hero[i]).canLevelUp())
-                    ((Hero)hero[i]).LevelUp();
-                ((Hero) hero[i]).gain(monster[i].level);
-            }
         }
-        board.render();
         return result;
     }
     private int fight(Hero h, Monsters m, Scanner sc) {
@@ -138,10 +127,38 @@ public class Fight {
         int i = 0;
         boolean b = false;
         for (; i < player.length; i++) {
-            if (player[i].HP() >= 0 ) break;
+            //System.out.println("player "+i+ ":" + player[i].Name()+ " " + player[i].HP());
+            if (player[i].HP() > 0 ) break; // not lose
         }
         if(i == player.length) b = true;
+        //System.out.println(b);
         return b;
+    }
+
+    private void exit(int end, Role[] hero) {
+        if (end == 1) { // win
+            IO.prompt("Hero defeated monsters!");
+            for(int i = 0; i < hero.length; i++) {
+                if(hero[i].HP() == 0)
+                    ((Hero) hero[i]).revive();
+                if(((Hero)hero[i]).canLevelUp())
+                    ((Hero)hero[i]).LevelUp();
+                ((Hero) hero[i]).gain(monster[i].level);
+            }
+        }
+        else { // lose
+            IO.prompt("Hero failed. Game is Over");
+            for(int i = 0; i < hero.length; i++){
+                ((Hero)hero[i]).money /=2;
+            }
+
+        }
+
+        for(int i = 0; i < hero.length;i++){
+            Hero h = (Hero) hero[i];
+            h.header();
+            h.info();
+        }
     }
 
 }

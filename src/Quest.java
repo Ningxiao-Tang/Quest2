@@ -111,20 +111,22 @@ public class Quest extends Game {
             board.render();
 
             if(t == TileSet.MARKET) {
-                onMarket(in, team.roles);
-                board.render();
+                market.onMarket(in, team.roles);
+                //board.render();
             }
             if(t == TileSet.DEFAULT) {
                 if(Math.random() < 0.8) {
                     prompt("Watch out! You encounter monsters! Heroes, Let's fight!");
                     createMonster(hero_num, team.levels[hero_num-1]);
                     Fight f = new Fight(board,team.roles, monster.roles,in);
+                    if (f.result == 0) break;
                     //fight(team.roles, monster.roles,in);
                 }
             }
+            board.render();
         }
     }
-
+    /*
     private void onMarket(Scanner sc, Role[] heros) {
 
         for(int i = 0; i < heros.length; i++) {
@@ -180,10 +182,9 @@ public class Quest extends Game {
                     break;
                 }
             }while(true);
-//hero.info();
-
         }
     }
+    */
     private void createMonster(int n, int maxl) {
         monster = new Team(n);
         int r;
