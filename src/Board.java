@@ -49,8 +49,8 @@ public class Board {
             }
             //spawn monster and heroes
             for(int j = 0; j < width; j+=3){
-                createMonster(j);
-                createHero(j);
+                spawnMonster(j);
+                spawnHero(j);
             }
         }
         else{
@@ -70,10 +70,10 @@ public class Board {
         }
     }
 
-    public void createHero(int col) {
+    public void spawnHero(int col) {
         this.tiles[height-1][col] = TileSet.HERO;
     }
-    public void createMonster(int col) {
+    public void spawnMonster(int col) {
         this.tiles[0][col] = TileSet.MONSTER;
     }
     public boolean checkMove(int x, int y){

@@ -1,4 +1,4 @@
-public class Potions extends Equipment{
+public class Potions extends Equipment implements Tradable{
     //Name/cost/required level/attribute increase
     public int increase;
     private String attribute;
@@ -18,5 +18,14 @@ public class Potions extends Equipment{
     @Override
     public void info() {
         System.out.print(String.format("%-20s%-15s%-15s%-15s",this.Name(),this.Cost(),this.Level(),increase));
+    }
+    @Override
+    public int getCost() {
+        return Cost();
+    }
+
+    @Override
+    public int getLevel() {
+        return Level();
     }
 }

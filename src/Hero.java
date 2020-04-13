@@ -1,6 +1,6 @@
 import java.lang.*;
 
-public class Hero extends Role {
+public class Hero extends Role implements Attackable{
     //private String name;
     public double mana;
     public double strength;
@@ -198,6 +198,14 @@ public class Hero extends Role {
         if (wp != null) return (strength + wp.Damage())*0.05;
         return strength*0.05;
     }
+    public double Dodge() {
+        return agility*1.0/10000;
+    }
+
+    @Override
+    public double getHP() {
+        return HP();
+    }
 
     @Override
     public double Defence() {
@@ -206,8 +214,6 @@ public class Hero extends Role {
         return 0;
     }
 
-    public double Dodge() {
-        return agility*1.0/10000;
-    }
+
 
 }

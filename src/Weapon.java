@@ -1,4 +1,4 @@
-public class Weapon extends Equipment{
+public class Weapon extends Equipment implements Tradable{
     private int damage;
     private int hands;
 
@@ -21,6 +21,15 @@ public class Weapon extends Equipment{
     @Override
     public void info() {
         System.out.print(String.format("%-15s%-15s%-15s%-15s",this.Name(),this.Cost(),this.Level(),damage));
+    }
+    @Override
+    public int getCost() {
+        return Cost();
+    }
+
+    @Override
+    public int getLevel() {
+        return Level();
     }
     public int Damage() {
         return damage;

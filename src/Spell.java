@@ -1,4 +1,4 @@
-public abstract class Spell extends Equipment{
+public abstract class Spell extends Equipment implements Tradable{
 
     private double damage;
     private double mana;
@@ -24,5 +24,15 @@ public abstract class Spell extends Equipment{
     @Override
     public void info() {
         System.out.print(String.format("%-20s%-15s%-15s%-15s%-15s",this.Name(),this.Cost(),this.Level(),damage,mana));
+    }
+
+    @Override
+    public int getCost() {
+        return Cost();
+    }
+
+    @Override
+    public int getLevel() {
+        return Level();
     }
 }

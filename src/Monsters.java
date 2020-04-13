@@ -1,4 +1,4 @@
-public class Monsters extends Role {
+public class Monsters extends Role implements Attackable{
 
     //private int prev_level_exp;
 
@@ -31,6 +31,11 @@ public class Monsters extends Role {
             hero.setHP(hero.HP()-(this.Damage()-hero.Defence()));
         }
 
+    }
+
+    @Override
+    public double getHP() {
+        return HP();
     }
 
     @Override
