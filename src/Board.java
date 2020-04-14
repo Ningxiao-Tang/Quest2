@@ -76,6 +76,11 @@ public class Board extends GameBoard{
     public void spawnMonster(int col) {
         this.tiles[0][col] = TileSet.MONSTER;
     }
+    public void respawnMonster(){
+        for(int j = 1; j < width; j+=3){
+            spawnMonster(j);
+        }
+    }
     public boolean checkMove(int x, int y){
         boolean ok = true;
         if (x < 0 || y < 0 || x > this.height || y > this.width) {

@@ -1,7 +1,10 @@
+import java.util.ArrayList;
+
 public class Team {
     // player can have 1 to 3 heros
     private String teamType;
     public Role[] roles;
+    public ArrayList<Role> role;
     public int[] levels;
     // the position of player
     public int x = 0;
