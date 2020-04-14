@@ -21,6 +21,7 @@ public class Hero extends Role implements Attackable{
     public Spell[] spells = new Spell[ItemSet.spellCount()];
     public Weapon wp = null;
     public Armory arm = null;
+    public Tile prev = TileSet.DEFAULT;
 
     public Hero(String n, double mana, double strength, double agility, double dexterity, int money, int exp, int f) {
         super(n,1);
@@ -59,14 +60,16 @@ public class Hero extends Role implements Attackable{
         }
     }
     public void list() {
-        IO.prompt(this.Name()+"'s inventory: ");
+        IO.prompt(this.Name()+"'s inventory ");
         if(itemCount != 0) {
             for(int i = 0; i< inventory.length; i++){
                 if (inventory[i] != 0) {
                     System.out.println(ItemSet.items[i].Name());
                 }
-
-            } }
+            }
+        }
+        else
+            IO.prompt("is empty");
     }
     public int getItemCount() {
         return itemCount;

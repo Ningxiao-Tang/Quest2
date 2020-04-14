@@ -184,7 +184,7 @@ public class Quest extends Game {
         team.addDescription("Hero");
         monster = new Team(monster_num);
         monster.addDescription("Monster");
-        intro2();
+
         selectHero(team, in);
         randomMonster(monster,monster_num,team.levels[2]);
         for (int i = 0,j=0; i < HERO_LIMIT && j < height; i++,j+=3){
@@ -192,21 +192,23 @@ public class Quest extends Game {
             monster.roles[i].setPosition(0,j);
         }
         // board initialization
-
+        intro2();
         board = new Board();
         board.Init(2);
         board.render();
 
         // start round
         int round = 1;
-        Tile[]  t = {TileSet.DEFAULT, TileSet.DEFAULT, TileSet.DEFAULT};
+        //Tile[]  t = {TileSet.DEFAULT, TileSet.DEFAULT, TileSet.DEFAULT};
         while(!board.reachNexus(team) && !board.reachNexus(monster)) {
             if(round%8==0){
                 //respawn monster
             }
+            //monster's turn
             for (int i = 0; i < monster_num; i++) {
                 Monsters m = (Monsters)monster.get(i);
                 Hero[] temp = radiusMonster(m,team);
+                if (m.HP() <= 0) continue;
                 if(temp[0]!= null)
                     m.attack(temp[0]);
                 else{
@@ -214,29 +216,42 @@ public class Quest extends Game {
                     IO.prompt("Monster "+(i+1)+" "+m.Name()+" moves forward");
                 }
 
-            }
-            board.render();
-
+            }board.render();
             if(board.reachNexus(monster)) //monster win
                 break;
-
+            //hero's turn
             for (int i = 0; i < HERO_LIMIT; i++) {
                 Hero h = (Hero)team.get(i);
                 Monsters[] temp = radiusHero(h, monster);
+
+                if(h.x == height-1){
+                    IO.prompt("Hero "+(i+1)+" "+ TileSet.HERO[i]+"is on the hero nexus" );
+                    onNexusMarket(in,h);
+                    board.render();
+                }
+
                 if(temp[0]!= null){
                     //can choose move or attack monster
                     int d = IO.promptInt(in,"Hero "+(i+1)+" "+ TileSet.HERO[i]+" encounter a monster. Please enter 1 to move, enter 2 to fight",1,2);
                     if (d == 2) {
-                        //Round round = new Round(Hero hero, Monsters monster, Scanner sc);
+                        Round fight = new Round();
+                        int roundResult = fight.HeroAction(h, temp[0], in);
+                        if (roundResult == 1) {
+                            //monster die
+                            board.tiles[temp[0].x][temp[0].y]  = TileSet.DEFAULT;
+                            IO.prompt("Hero "+(i+1)+" "+ TileSet.HERO[i]+" defeated monster "+ temp[0].Name() + "!");
+                        }
+                        if (roundResult == -1) {
+                            //respawn hero in the nexues
+
+                        }
                     }
                     else {
-                        moveHero(board,h,i,t,in);
+                        moveHero(board,h,i,in);
                     }
-
-
                 }
-                else {
-                    moveHero(board,h,i,t,in);
+                else {// no monster next to hero
+                    moveHero(board,h,i,in);
                 }
                 board.render();
             }
@@ -248,18 +263,15 @@ public class Quest extends Game {
         }
     }
 
-    public void moveHero(Board board, Hero h, int i, Tile[] t, Scanner in){
+    public void moveHero(Board board, Hero h, int i, Scanner in){
         IO.prompt("For hero "+(i+1)+ " "+TileSet.HERO[i]+", please enter w/a/s/d to move, enter b to go back to Nexus, enter t to teleport to another lane");
         char ch = in.next().charAt(0);
-        board.tiles[h.x][h.y] = t[i];
+        board.tiles[h.x][h.y] = h.prev;
         //update hero(i) 's position
         move(board,ch,h);
-        t[i] = board.tiles[h.x][h.y]; //now player at a new position, store its tile
+        h.prev = board.tiles[h.x][h.y]; //now player at a new position, store its tile
         board.tiles[h.x][h.y] = TileSet.HERO[i];
     }
-
-
-
 
     private Hero[] radiusMonster(Monsters m, Team team) {
         //return an array of heroes that monster m can attack
@@ -299,6 +311,11 @@ public class Quest extends Game {
                 return true;
         }
         return false;
+    }
+    private void onNexusMarket(Scanner in, Hero h){
+        int d = IO.promptInt(in," Please enter 1 to go to market, enter other number to pass",0,9);
+        if(d == 1)
+            market.onMarket(in,h);
     }
 
 

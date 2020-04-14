@@ -24,13 +24,16 @@ public class Monsters extends Role implements Attackable{
 
     }
     public void attack(Hero hero) {
-        if(Math.random() <=  hero.Dodge())
+        if(hero.prev.equals(TileSet.CAVE)) hero.agility *=1.1;
+        if(Math.random() <=  hero.Dodge()){
             IO.prompt("Hero "+ hero.Name()+ " dodged the attack");
+        }
+
         else if( this.Damage() > hero.Defence()){
             IO.prompt("Monster "+this.name + " cause " + this.Damage() + " damage to " +hero.name);
             hero.setHP(hero.HP()-(this.Damage()-hero.Defence()));
         }
-
+        if(hero.prev.equals(TileSet.CAVE)) hero.agility /=1.1;
     }
 
     @Override
