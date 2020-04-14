@@ -210,7 +210,7 @@ public class Hero extends Role implements Attackable{
     @Override
     public double Defence() {
         // if hero has no armory, return 0; else return armory's defence
-        if (arm != null) return arm.Defence();
+        if (arm != null) return arm.Defence()*0.02;
         return 0;
     }
 

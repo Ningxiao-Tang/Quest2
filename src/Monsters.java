@@ -19,15 +19,15 @@ public class Monsters extends Role implements Attackable{
                 "Name","Level","HP","Damage","Defence","Dodge chance"));
     }
     public void info() {
-        System.out.println(String.format("%-24s%-10s%-10s%-10s%-10s%-10s\n",
+        System.out.println(String.format("%-24s%-10s%-10.2f%-10s%-10s%-10s\n",
                 name,level,hp,damage,defence,agility));
 
     }
     public void attack(Hero hero) {
         if(Math.random() <=  hero.Dodge())
             IO.prompt("Hero "+ hero.Name()+ " dodged the attack");
-        else if( this.damage > hero.Defence()){
-            IO.prompt("Monster "+this.name + " cause " + this.damage + " damage to " +hero.name);
+        else if( this.Damage() > hero.Defence()){
+            IO.prompt("Monster "+this.name + " cause " + this.Damage() + " damage to " +hero.name);
             hero.setHP(hero.HP()-(this.Damage()-hero.Defence()));
         }
 
@@ -40,7 +40,7 @@ public class Monsters extends Role implements Attackable{
 
     @Override
     public double Defence() {
-        return defence;
+        return defence*0.02;
     }
     public double Damage() {
         return damage*0.05;

@@ -15,10 +15,9 @@ public class Fight {
 
     public Fight(Board b, Role[] h, Role[] m, Scanner sc) {
         board = b;
-        //hero = (Hero[]) h;
-        //monster = (Monsters[]) m;
-        //Scanner sc = new Scanner(System.in);
         result = fight(h,m,sc);
+    }
+    public Fight() {
 
     }
 
@@ -38,11 +37,11 @@ public class Fight {
         }while(!lose(monster)&& !lose(hero));
 
         if(lose(hero)){
-            exit(0,hero);
+            exit(0,hero,monster);
             result = 0;
         }
         else {
-            exit(1,hero);
+            exit(1,hero,monster);
             result = 1;
         }
         return result;
@@ -112,9 +111,9 @@ public class Fight {
         if(monster.HP()>0)
             monster.attack(hero);
         //at end of each round, print roles information
-        hero.header();
+        Hero.header();
         hero.info();
-        monster.header();
+        Monsters.header();
         monster.info();
 
 
@@ -135,7 +134,7 @@ public class Fight {
         return b;
     }
 
-    private void exit(int end, Role[] hero) {
+    private void exit(int end, Role[] hero, Role[] monster) {
         if (end == 1) { // win
             IO.prompt("Hero defeated monsters!");
             for(int i = 0; i < hero.length; i++) {

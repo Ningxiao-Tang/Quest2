@@ -1,4 +1,4 @@
-public class Board {
+public class Board extends GameBoard{
     private int width;
     private int height;
     public Tile[][] tiles;
@@ -58,7 +58,7 @@ public class Board {
             for(int i = 0; i < height; i++){
                 for (int j = 0; j < width; j++){
                     if (i == 0 && j == 0) {
-                        tiles[i][j] = TileSet.HERO;
+                        tiles[i][j] = TileSet.HERO[0];
                         continue;
                     }
                     double r = Math.random();
@@ -71,27 +71,55 @@ public class Board {
     }
 
     public void spawnHero(int col) {
-        this.tiles[height-1][col] = TileSet.HERO;
+        this.tiles[height-1][col] = TileSet.HERO[col/3];
     }
     public void spawnMonster(int col) {
         this.tiles[0][col] = TileSet.MONSTER;
     }
     public boolean checkMove(int x, int y){
-        boolean ok = false;
+        boolean ok = true;
         if (x < 0 || y < 0 || x > this.height || y > this.width) {
             IO.prompt("Move out of board");
+            ok = false;
         }
-        else if (this.tiles[x][y] == TileSet.WALL){
-            IO.prompt("Inaccessible.");
+        if (this.tiles[x][y] == TileSet.WALL){
+            IO.prompt("Inaccessible");
+            ok = false;
         }
-        else ok = true;
+        if (existHero(x,y) || existMonster(x,y)){
+            IO.prompt("The place you choose is occupied");
+            ok = false;
+        }
         return ok;
     }
+    public boolean existHero(int x, int y){
+        return this.tiles[x][y].equals(TileSet.HERO[0])||this.tiles[x][y].equals(TileSet.HERO[1])||this.tiles[x][y].equals(TileSet.HERO[2]);
+    }
+    public boolean existMonster(int x, int y) {
+        return this.tiles[x][y].equals(TileSet.MONSTER);
+    }
+
+    public boolean reachNexus(Team team) {
+        boolean reach = false;
+        if(team.getTeamType().equalsIgnoreCase("Hero")){
+            for (int i = 0; i < team.roles.length; i++){
+                if (team.roles[i].x == 0)
+                    reach = true;
+            }
+        }
+        else if (team.getTeamType().equalsIgnoreCase("Monster")){
+            for (int i = 0; i < team.roles.length; i++){
+                if (team.roles[i].x == height-1)
+                    reach = true;
+            }
+        }
+        return reach;
+    }
+
 
     public int getHeight() {
         return height;
     }
-
     public void render(){
         char c = '|';
         for (int i = 0; i < height; i++) {
@@ -104,6 +132,7 @@ public class Board {
             }
             System.out.println();
         }
+        System.out.println();
     }
 
     @Override
