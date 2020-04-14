@@ -14,6 +14,9 @@ public class Quest extends Game {
     public int width = 8;
     public int height = 8;
 
+    /**
+     * Quest1 game intro
+     */
 
     public void intro1(){
         //System.out.println("Welcome to Quest.");
@@ -23,15 +26,19 @@ public class Quest extends Game {
                 "Press i to view your hero, press q to quit" + Color.RESET);
         System.out.println(" ");
     }
+
+    /**
+     * Quest2 game intro
+     */
     public void intro2() {
         IO.prompt( "Quest of Legends Begins..." );
-        System.out.println(Color.RED + "In the map, @,#,$ is heroes' position, \" is the BUSH cell, · is KOULOU cell, ▲ is CAVE cell, █ is inaccessible\n" +
-                "Use w/a/s/d to explore the map, use t to TELEPORT to another lane\n" +
+        System.out.println(Color.RED + "In the map, @,#,$ are heroes' position, \" is the BUSH cell, · is KOULOU cell, ▲ is CAVE cell, █ is inaccessible\n" +
+                "Use w/a/s/d to explore the map, use t to TELEPORT to another lane, and b to move your hero to market which is located in nexus\n" +
                 "Press i to view your hero, press q to quit" + Color.RESET);
         System.out.println(" ");
     }
-    /*
-    initialize heroes from user's choice, sort selected heroes' level;
+    /**
+     * Initialize heroes from user's choice, sort selected heroes' level;
      */
     public static void selectHero(Team team, Scanner in) {
         String SELECT_HERO = "Please enter number 1 to 12 to choose your hero";
@@ -48,7 +55,7 @@ public class Quest extends Game {
     }
 
     /**
-     * print info of team hero and team monster
+     * print info of team hero and team monster if monster is not null
      */
 
     private void info(Team hero, Team monster){
@@ -63,11 +70,36 @@ public class Quest extends Game {
         }
     }
 
+    /**
+     * move() interface for quest 1 controller to move all hero
+     * @param b board
+     * @param ch user's input
+     * @param team hero
+     */
+
     public void move(Board b, char ch, Team team) {
         Position p = move(b, ch,team.x,team.y);
         team.setPosition(p.x,p.y);
     }
-
+    /**
+     * move() interface for quest2 controller to move each hero
+     * @param b
+     * @param ch
+     * @param h
+     */
+    public void move(Board b, char ch, Hero h) {
+        if (ch == 'w'){
+            if (willPassMonster(b,h.x,h.y))
+                IO.prompt("Cannot pass monster without fight");
+        }
+        if (ch == 't'){
+            teleport(b,h);
+        }
+        else {
+            Position p = move(b, ch,h.x,h.y);
+            h.setPosition(p.x,p.y);
+        }
+    }
     public Position move (Board board, char ch, int x, int y){
         Position pos = new Position(x,y);
         if (ch == 'w'){
@@ -94,20 +126,8 @@ public class Quest extends Game {
         }
         return pos;
     }
-    public void move(Board b, char ch, Hero h) {
-        if (ch == 'w'){
-            if (willPassMonster(b,h.x,h.y))
-                IO.prompt("Cannot pass monster without fight");
-        }
-        if (ch == 't'){
-            teleport(b,h);
-        }
-        else {
-            Position p = move(b, ch,h.x,h.y);
-            h.setPosition(p.x,p.y);
-        }
 
-    }
+
 
     public void teleport(Board b, Hero hero) {
         Scanner in = new Scanner(System.in);
@@ -125,6 +145,12 @@ public class Quest extends Game {
         }
     }
 
+    /**
+     *
+     * @param m initialize a team of monster m,
+     * @param n number of monster to create
+     * @param maxl the level of all monsters is the maximum level of all hero
+     */
     private void randomMonster(Team m, int n, int maxl) {
         int r;
         for (int i = 0; i < n; i++) {
@@ -134,16 +160,6 @@ public class Quest extends Game {
             Monsters monster = MonsterSet.monsters[r];
             m.roles[i] = new Monsters(monster.name,monster.level,monster.damage,monster.Defence(),monster.Dodge());
             //m.role.add(m.roles[i]);
-        }
-    }
-    private void respawnMonster(ArrayList<Role>role, int maxl){
-        int r;
-        for (int i = 0 ; i < 3; i++) {
-            do{
-                r =(int) (Math.random()* MonsterSet.n);
-            }while (MonsterSet.monsters[r].Level()!=maxl);
-            Monsters monster = MonsterSet.monsters[r];
-            role.add(new Monsters(monster.name,monster.level,monster.damage,monster.Defence(),monster.Dodge()));
         }
     }
 
@@ -210,23 +226,26 @@ public class Quest extends Game {
 
         // start round
         int round = 1;
-        while(!board.reachNexus(team) && !board.reachNexus(monster)) {
+        boolean quit = false;
+        while(!board.reachNexus(team) && !board.reachNexus(monster) && !quit) {
             if(round%8==0){
                 //respawn monster
-                board.respawnMonster();
+                //board.respawnMonster();
                 //
                 Team tempTeam = new Team(monster_num+3);
                 Team newTeam = new Team(3);
                 randomMonster(newTeam,3,team.levels[2]);
-                for (int i = 0; i < monster.roles.length;i++){
+                for (int i = 0; i < monster_num;i++){
                     tempTeam.roles[i] = monster.roles[i];
                 }
-                for (int i = monster_num,j=0; i < monster_num+3;i++,j++){
+                for (int i = monster_num,j=0,k=0; i < monster_num+3;i++,j++,k+=3){
                     tempTeam.roles[i] = newTeam.roles[j];
+                    tempTeam.roles[i].setPosition(0,k);
                 }
                 monster = tempTeam;
                 monster.addDescription("Monster");
                 monster_num+=3;
+                System.out.println("new monster set length="+monster.roles.length+" new monster_num="+monster_num);
             }
             //monster's turn
             for (int i = 0; i < monster_num; i++) {
@@ -241,8 +260,10 @@ public class Quest extends Game {
                 }
 
             }board.render();
-            if(board.reachNexus(monster)) //monster win
+            if(board.reachNexus(monster)) {//monster win
                 break;
+            }
+
             //hero's turn
             for (int i = 0; i < HERO_LIMIT; i++) {
                 Hero h = (Hero)team.get(i);
@@ -254,9 +275,10 @@ public class Quest extends Game {
                     board.render();
                 }
 
-                if(temp[0]!= null){
+                if(temp[0]!= null && temp[0].HP() > 0){
+                    //if(temp[0].HP() <= 0) continue;
                     //can choose move or attack monster
-                    int d = IO.promptInt(in,"Hero "+(i+1)+" "+ TileSet.HERO[i]+" encounter a monster. Please enter 1 to move, enter 2 to fight",1,2);
+                    int d = IO.promptInt(in,"Hero "+(i+1)+" "+ TileSet.HERO[i]+" encounter a monster. Please enter 1 to move, 2 to fight, enter other digit to quit",0,9);
                     if (d == 2) {
                         h.recover();
                         Round fight = new Round();
@@ -265,6 +287,7 @@ public class Quest extends Game {
                             //monster die
                             board.tiles[temp[0].x][temp[0].y]  = TileSet.DEFAULT;
                             IO.prompt("Hero "+(i+1)+" "+ TileSet.HERO[i]+" defeated monster "+ temp[0].Name() + "!");
+                            monster_num--;
                         }
                         if (roundResult == -1) {
                             //respawn hero in the nexus
@@ -275,8 +298,12 @@ public class Quest extends Game {
 
                         }
                     }
-                    else {
+                    else if(d == 1){
                         moveHero(board,h,i,in);
+                    }
+                    else {
+                        quit = true;
+                        break;
                     }
                 }
                 else {// no monster next to hero
@@ -290,6 +317,12 @@ public class Quest extends Game {
             round++;
 
         }
+        if(board.reachNexus(team)) {
+            IO.prompt("Hero Win!");
+        }
+        else if(board.reachNexus(monster)) {
+            IO.prompt("Hero Lost");
+        }
     }
 
     public void moveHero(Board board, Hero h, int i, Scanner in){
@@ -302,8 +335,13 @@ public class Quest extends Game {
         board.tiles[h.x][h.y] = TileSet.HERO[i];
     }
 
+    /**
+     * return an array of heroes that monster m can attack
+     * @param m team monster
+     * @param team team hero
+     * @return
+     */
     private Hero[] radiusMonster(Monsters m, Team team) {
-        //return an array of heroes that monster m can attack
         Hero[] temp = new Hero[team.roles.length];
         int k = 0;
         for(int i = 0; i< team.roles.length;i++){
@@ -318,7 +356,7 @@ public class Quest extends Game {
         Monsters[] temp = new Monsters[team.roles.length];
         int k = 0;
         for(int i = 0; i< team.roles.length;i++){
-            if(h.x-team.roles[i].x==1)
+            if(Math.abs(h.y-team.roles[i].y)<=1 && h.x-team.roles[i].x==1)
                 temp[k++] = (Monsters)team.roles[i];
         }
         return temp;
@@ -342,8 +380,11 @@ public class Quest extends Game {
         return false;
     }
     private void onNexusMarket(Scanner in, Hero h){
-        int d = IO.promptInt(in," Please enter 1 to go to market, enter other number to pass",0,9);
-        if(d == 1)
+//        int d = IO.promptInt(in," Please enter 1 to go to market, enter other number to pass",0,9);
+//        if(d == 1)
+//        char ans;
+        System.out.println("Would you like to go to the Market? (y for yes, other to pass)");
+        if(in.next().charAt(0) == 'y')
             market.onMarket(in,h);
     }
 

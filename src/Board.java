@@ -77,7 +77,7 @@ public class Board extends GameBoard{
         this.tiles[0][col] = TileSet.MONSTER;
     }
     public void respawnMonster(){
-        for(int j = 1; j < width; j+=3){
+        for(int j = 0; j < width; j+=3){
             spawnMonster(j);
         }
     }

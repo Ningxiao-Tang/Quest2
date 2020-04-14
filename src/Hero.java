@@ -43,7 +43,7 @@ public class Hero extends Role implements Attackable{
                 "Name","Level","HP","Money","Exp","Strength","Agility","Dexterity","Mana"));
     }
     public void info() {
-        System.out.println(String.format("%-24s%-10s%-10.2f%-10s%-10s%-10s%-10s%-10s%-10s\n",
+        System.out.println(String.format("%-24s%-10s%-10.2f%-10s%-10s%-10.2f%-10.2f%-10.2f%-10s\n",
                 name,level,hp,money,exp,strength,agility,dexterity,mana));
 
     }
