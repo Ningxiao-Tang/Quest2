@@ -89,8 +89,11 @@ public class Quest extends Game {
      */
     public void move(Board b, char ch, Hero h) {
         if (ch == 'w'){
-            if (willPassMonster(b,h.x,h.y))
+            if (willPassMonster(b,h.x,h.y)){
                 IO.prompt("Cannot pass monster without fight");
+                return;
+            }
+
         }
         if (ch == 't'){
             teleport(b,h);
@@ -346,7 +349,7 @@ public class Quest extends Game {
         int k = 0;
         for(int i = 0; i< team.roles.length;i++){
             //hero is below m
-            if(Math.abs(m.y-team.roles[i].y)<=1 && team.roles[i].x - m.x == 1)
+            if(Math.abs(m.y-team.roles[i].y)<=1 && team.roles[i].x - m.x <= 1 )
                 temp[k++] = (Hero)team.roles[i];
         }
         return temp;
@@ -356,7 +359,7 @@ public class Quest extends Game {
         Monsters[] temp = new Monsters[team.roles.length];
         int k = 0;
         for(int i = 0; i< team.roles.length;i++){
-            if(Math.abs(h.y-team.roles[i].y)<=1 && h.x-team.roles[i].x==1)
+            if(Math.abs(h.y-team.roles[i].y)<=1 && h.x-team.roles[i].x<=1)
                 temp[k++] = (Monsters)team.roles[i];
         }
         return temp;
@@ -370,7 +373,12 @@ public class Quest extends Game {
     }
     private boolean willPassHero(Board b, int x, int y) {
         // hero.x == monster.x
-        return ((y>0 && b.existHero(x,y-1))|| (y<width-1 && b.existHero(x,y+1)));
+        for ( int row = x; row > 0; row --) {
+            if ((y>0 && b.existHero(x,y-1))|| (y<width-1 && b.existHero(x,y+1)))
+                return true;
+        }
+        return false;
+
     }
     private boolean willPassMonster(Board b, int x, int y) {
         for (int row = x; row < height; row++){
